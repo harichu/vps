@@ -70,8 +70,7 @@ if [ "$action" == 'create' ] || [ "$action" == 'add' ]
 		fi
 
 		### create virtual host rules file
-		if ! echo "
-		<VirtualHost *:80>
+		if ! echo "<VirtualHost *:80>
 			ServerAdmin $email
 			ServerName $domain
 			ServerAlias $domain
@@ -82,9 +81,8 @@ if [ "$action" == 'create' ] || [ "$action" == 'add' ]
 				Order allow,deny
 				Allow from all 
 			</Directory>
-			ErrorLog $logDir/$domain-error.log
-			LogLevel error
-			CustomLog $logDir/$domain-access.log combined
+			ErrorLog logs/$domain-error.log
+			CustomLog logs/$domain-access.log combined
 		</VirtualHost>" > $sitesAvailabledomain
 		then
 			echo -e $"There is an ERROR creating $domain file"
