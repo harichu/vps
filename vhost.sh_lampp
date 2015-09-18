@@ -51,10 +51,10 @@ if [ "$action" == 'create' ] || [ "$action" == 'add' ]
 		if ! [ -d $rootDir ]; then
 			### create the directory
 			mkdir -p $rootDir
-			mkdir $logDir
+			#mkdir $logDir
 			### give permission to root dir
 			chmod 755 $rootDir
-			chmod 755 $logDir
+			#chmod 755 $logDir
 			### write test file in the new domain dir
 			if ! echo "<?php echo phpinfo(); ?>" > $rootDir/phpinfo.php
 			then
@@ -66,8 +66,7 @@ if [ "$action" == 'create' ] || [ "$action" == 'add' ]
 		fi
 
 		### create virtual host rules file
-		if ! echo "
-		<VirtualHost *:80>
+		if ! echo "<VirtualHost *:80>
 			ServerAdmin $email
 			ServerName $domain
 			ServerAlias $domain
@@ -78,9 +77,9 @@ if [ "$action" == 'create' ] || [ "$action" == 'add' ]
 				Order allow,deny
 				Allow from all 
 			</Directory>
-			ErrorLog $logDir/$domain-error.log
+			ErrorLog logs/$domain-error.log
 			LogLevel error
-			CustomLog $logDir/$domain-access.log combined
+			CustomLog logs/$domain-access.log combined
 		</VirtualHost>" > $sitesAvailabledomain
 		then
 			echo -e $"There is an ERROR creating $domain file"
