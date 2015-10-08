@@ -11,7 +11,7 @@ domain=$2
 owner=$(who am i | awk '{print $1}')
 email='webmaster@localhost'
 sitesAvailable='/etc/httpd/vhosts.d/'
-homeDir='/home/'
+homeDir='/var/www/'
 dir_public_html='/public_html'
 dir_log='/logs'
 sitesAvailabledomain=$sitesAvailable$domain.conf
@@ -55,17 +55,18 @@ if [ "$action" == 'create' ] || [ "$action" == 'add' ]
 		if ! [ -d $rootDir ]; then
 			### create the directory
 			mkdir -p $rootDir
-			mkdir $logDir
+			#mkdir $logDir
 			### give permission to root dir
 			chmod 755 $rootDir
-			chmod 755 $logDir
+			chown -R apache:apache $rootDir
+			#chmod 755 $logDir
 			### write test file in the new domain dir
-			if ! echo "<?php echo phpinfo(); ?>" > $rootDir/info.php
+			if ! echo "<?php echo phpinfo(); ?>" > $rootDir/_php.php
 			then
-				echo $"ERROR: Not able to write in file $rootDir/info.php. Please check permissions"
+				echo $"ERROR: Not able to write in file $rootDir/_php.php. Please check permissions"
 				exit;
 			else
-				echo $"Added content to $rootDir/info.php"
+				echo $"Added content to $rootDir/_php.php"
 			fi
 		fi
 
