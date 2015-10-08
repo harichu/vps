@@ -25,7 +25,7 @@ if [ "$(whoami)" != 'root' ]; then
 		exit 1;
 fi
 
-if [ "$action" != 'create' ] && [ "$action" != 'add' ] && [ "$action" != 'delete' ] && [ "$action" != 'del' ]
+if [ "$action" != 'create' ] && [ "$action" != 'add' ] && [ "$action" != 'delete' ] && [ "$action" != 'del' ]  && [ "$action" != 'fixpermission' ]
 	then
 		echo $"You need to prompt for action (create or delete) -- Lower-case only"
 		exit 1;
@@ -43,8 +43,7 @@ done
 			mkdir -p $sitesAvailable			
 		fi
 		
-if [ "$action" == 'create' ] || [ "$action" == 'add' ]
-	then
+if [ "$action" == 'create' ] || [ "$action" == 'add' ]; then
 		### check if domain already exists
 		if [ -e $sitesAvailabledomain ]; then
 			echo -e $"This domain already exists.\nPlease Try Another one"
@@ -121,7 +120,8 @@ if [ "$action" == 'create' ] || [ "$action" == 'add' ]
 		### show the finished message
 		echo -e $"Complete! \nYou now have a new Virtual Host \nYour new host is: http://$domain \nAnd its located at $rootDir"
 		exit;
-	else
+fi
+if [ "$action" == 'delete' ] || [ "$action" == 'del' ]; then
 		### check whether domain already exists
 		if ! [ -e $sitesAvailabledomain ]; then
 			echo -e $"This domain does not exist.\nPlease try another one"
@@ -159,5 +159,13 @@ if [ "$action" == 'create' ] || [ "$action" == 'add' ]
 
 		### show the finished message
 		echo -e $"Complete!\nYou just removed Virtual Host $domain"
+		exit 0;
+fi
+if [ "$action" == 'fixpermission' ]; then
+		chown -R apache:apache $rootDir
+		find $rootDir -type f -exec chmod 664 {} \;
+		find $rootDir -type d -exec chmod 775 {} \;
+		#chown root:root $rootDir
+		echo -e $"Fix Permission Success!"
 		exit 0;
 fi
