@@ -163,7 +163,7 @@ if [ "$action" == 'delete' ] || [ "$action" == 'del' ]; then
 fi
 if [ "$action" == 'fixpermission' ]; then
 		chown -R apache:apache $rootDir
-		find $rootDir -type f -exec chmod 664 {} \;
+		find $rootDir -type f -exec chmod 644 {} \;
 		find $rootDir -type d -exec chmod 775 {} \;
 		#chown root:root $rootDir
 		echo -e $"Fix Permission Success!"
