@@ -1,0 +1,8 @@
+### NOTICE: Apply permission to execute: chmod +x /root/auto_start_mysql.sh
+### Crontab: */1 * * * * /root/auto_start_mysql.sh > /dev/null 2>&1    
+
+#!/bin/bash
+if [[ ! "$(/sbin/service mysqld status)" =~ "start/running" ]]
+then
+   /sbin/service mysqld start
+fi
