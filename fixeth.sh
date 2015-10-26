@@ -8,6 +8,11 @@ if grep -q eth0 /etc/udev/rules.d/70-persistent-net.rules; then
 fi
 #Apply permission to execute: chmod +x /usr/local/bin/fixeth
 
+#Setting to run on start
+nano /etc/rc.local
+#add to bottom 
+/bin/sh /usr/local/bin/fixeth > /dev/null &
+
 #ifcfg-eth0
 DEVICE=eth0
 ONBOOT=yes
