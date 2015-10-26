@@ -1,4 +1,5 @@
 #1. Setup Static IP
+# rm /etc/udev/rules.d/70-persistent-net.rules
 #To setup eth0 alias type the following command as the root user:
 #ifconfig eth0 192.168.1.6 up
 DEVICE=eth0
