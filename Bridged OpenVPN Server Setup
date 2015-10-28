@@ -1,47 +1,51 @@
-VM Settings
-Allocate at least 768 MB of memory, and choose the default hard drive settings. In the newly created VM's settings, set:
-
-General > Advanced:
-Shared Clipboard: Bidirectional
-Drag'n'Drop: Bidirectional
-
-Network > Adapter 1:
-Attached to: Bridged Adapter
-Name: select your Ethernet interface/adapter
-Under Advanced, Promiscuous Mode: Allow All
-
------------------------------------------
+# VM Settings
+# Allocate at least 768 MB of memory, and choose the default hard drive settings. In the newly created VM's settings, set:
+# 
+# General > Advanced:
+# Shared Clipboard: Bidirectional
+# Drag'n'Drop: Bidirectional
+# 
+# Network > Adapter 1:
+# Attached to: Bridged Adapter
+# Name: select your Ethernet interface/adapter
+# Under Advanced, Promiscuous Mode: Allow All
+# 
+# -----------------------------------------
 yum -y update && yum -y install which wget nano nmap bzip2 unzip zip gcc gcc-c++
 wget http://epel.mirror.net.in/epel/6/i386/epel-release-6-8.noarch.rpm
 rpm -Uvh epel-release-6-8.noarch.rpm
 
 yum install -y openvpn easy-rsa bridge-utils
 
-Copy Easy-RSA to OpenVPN's directory:
+# Copy Easy-RSA to OpenVPN's directory:
 
 cp -r /usr/share/easy-rsa/2.0 /etc/openvpn/easy-rsa
 
-Now we'll make the credentials (certificates and keys) for OpenVPN authentication. Go to Easy-RSA's directory:
+# Now we'll make the credentials (certificates and keys) for OpenVPN authentication. Go to Easy-RSA's directory:
 
 cd /etc/openvpn/easy-rsa
 
+#set default info
+nano vars
 source vars
 ./clean-all
 ./build-ca
 ./build-key-server server
+./build-key client
+#more ./build-key client2
 ./build-dh
-./build-key ClientNAME
 
----------------------------------
-VPN Setup
- Free IP address for Linux VM: 192.168.5.100
-Netmask: 255.255.255.0
-Broadcast address: 192.168.5.255
-Router's IP address: 192.168.5.1
-
-We'll use the text editor “nano” to create a script called “openvpn-bridge” that performs the Ethernet bridging. Enter 
----------------------------------
+#---------------------------------
+#VPN Setup
+#Free IP address for Linux VM: 192.168.5.100
+#Netmask: 255.255.255.0
+#Broadcast address: 192.168.5.255
+#Router's IP address: 192.168.5.1
+#
+#We'll use the text editor “nano” to create a script called “openvpn-bridge” that performs the Ethernet bridging. Enter 
+#---------------------------------
 nano /etc/openvpn/bridge-up
+#---------------------------------
 #!/bin/sh
 
 # Define Bridge Interface
@@ -83,11 +87,11 @@ eth_gateway="192.168.5.1"
     route add default gw $eth_gateway
 
 exit 0
-
+#---------------------------------
 #chmod +x /etc/openvpn/bridge-up
 
-
 nano /etc/openvpn/bridge-down
+#---------------------------------
 #!/bin/sh
 
 # Define Bridge Interface
@@ -117,7 +121,7 @@ eth_gateway="192.168.5.1"
     route add default gw $eth_gateway
    
 exit 0
-
+#---------------------------------
 #chmod +x /etc/openvpn/bridge-down
 
 #Setting to run on start
@@ -125,12 +129,49 @@ nano /etc/rc.local
 #add to bottom 
 /bin/sh /etc/openvpn/bridge-up > /dev/null &
 
---------------------------------------------------
-Now we'll create the server configuration file. Enter
 
+
+#-------------------------------------------------
+#-------------------------------------------------
+# Create quick script to start, stop, restart openvpn in /usr/local/bin/
+#-------------------------------------------------
+#-------------------------------------------------
+nano /usr/local/bin/openvpn
+#-------------------------------------------------
+#!/bin/bash
+#Apply permission to execute: chmod +x /usr/local/bin/openvpn
+#use: ~> openvpn [start|stop|restart]
+action=$1
+if [ "$action" != 'start' ] && [ "$action" != 'stop' ] && [ "$action" != 'restart' ]
+	then
+		echo $"You need to prompt for action (start|stop|restart) -- Lower-case only"
+		exit 1;
+fi
+if [ "$action" == 'start' ]; then
+/bin/sh /etc/openvpn/bridge-up > /dev/null &
+/etc/init.d/openvpn start
+fi
+if [ "$action" == 'stop' ]; then
+/bin/sh /etc/openvpn/bridge-down > /dev/null &
+/etc/init.d/openvpn stop
+fi
+if [ "$action" == 'restart' ]; then
+/etc/init.d/openvpn stop
+/bin/sh /etc/openvpn/bridge-down > /dev/null &
+/bin/sh /etc/openvpn/bridge-up > /dev/null &
+/etc/init.d/openvpn start
+fi
+#-------------------------------------------------
+#Apply permission to execute: chmod +x /usr/local/bin/openvpn
+#use: ~> openvpn [start|stop|restart]
+
+
+#-------------------------------------------------
+#Now we'll create the server configuration file. Enter
+#
 nano /etc/openvpn/server.conf
 
-Copy and paste the following text:
+#Copy and paste the following text:
 
 port 1194
 proto udp
@@ -150,15 +191,15 @@ status /var/log/openvpn-status.log
 log-append /var/log/openvpn.log
 verb 3
 
-----------------------
-Starting the VPN Server
+#----------------------
+#Starting the VPN Server
 chkconfig --level 2345 openvpn on
 
----------------------------------------------
-OpenVPN Client Setup
-Client Configuration
-
-Create ClientName.ovpn and copy to C:\Program Files\OpenVPN\config
+#---------------------------------------------
+#OpenVPN Client Setup
+#Client Configuration
+#
+#Create ClientName.ovpn and copy to C:\Program Files\OpenVPN\config
 
 client
 dev tap0
@@ -172,4 +213,5 @@ key joe.key
 remote-cert-tls server
 comp-lzo
 verb 3
-
+#
+#
