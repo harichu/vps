@@ -138,22 +138,22 @@ nano /usr/local/bin/OPENVPN
 #-------------------------------------------------
 #!/bin/bash
 #Apply permission to execute: chmod +x /usr/local/bin/OPENVPN
-#use: ~> OPENVPN [start|stop|restart]
+#use: ~> OPENVPN [START|STOP|RESTART]
 action=$1
-if [ "$action" != 'start' ] && [ "$action" != 'stop' ] && [ "$action" != 'restart' ]
+if [ "$action" != 'START' ] && [ "$action" != 'STOP' ] && [ "$action" != 'RESTART' ]
 	then
-		echo $"You need to prompt for action (start|stop|restart) -- Lower-case only"
+		echo $"You need to prompt for action (start|stop|restart) -- Uppercase only"
 		exit 1;
 fi
-if [ "$action" == 'start' ]; then
+if [ "$action" == 'START' ]; then
 /bin/sh /etc/openvpn/bridge-up > /dev/null &
 /etc/init.d/openvpn start
 fi
-if [ "$action" == 'stop' ]; then
+if [ "$action" == 'STOP' ]; then
 /bin/sh /etc/openvpn/bridge-down > /dev/null &
 /etc/init.d/openvpn stop
 fi
-if [ "$action" == 'restart' ]; then
+if [ "$action" == 'RESTART' ]; then
 /etc/init.d/openvpn stop
 /bin/sh /etc/openvpn/bridge-down > /dev/null &
 /bin/sh /etc/openvpn/bridge-up > /dev/null &
