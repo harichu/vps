@@ -78,14 +78,13 @@ eth_gateway="192.168.5.1"
         ifconfig $t 0.0.0.0 promisc up
     done
 
-    sleep 10
+    sleep 3
 
     ifconfig $eth 0.0.0.0 promisc up
 
     ifconfig $br $eth_ip netmask $eth_netmask broadcast $eth_broadcast
 
-    route add default gw $eth_gateway
-
+    #route add default gw $eth_gateway
 exit 0
 #---------------------------------
 #chmod +x /etc/openvpn/bridge-up
@@ -118,8 +117,7 @@ eth_gateway="192.168.5.1"
 
     ifconfig $eth $eth_ip netmask $eth_netmask broadcast $eth_broadcast
 
-    route add default gw $eth_gateway
-   
+    #route add default gw $eth_gateway  
 exit 0
 #---------------------------------
 #chmod +x /etc/openvpn/bridge-down
@@ -133,14 +131,14 @@ nano /etc/rc.local
 
 #-------------------------------------------------
 #-------------------------------------------------
-# Create quick script to start, stop, restart openvpn in /usr/local/bin/
+# Create quick script to start, stop, restart OPENVPN in /usr/local/bin/
 #-------------------------------------------------
 #-------------------------------------------------
-nano /usr/local/bin/openvpn
+nano /usr/local/bin/OPENVPN
 #-------------------------------------------------
 #!/bin/bash
-#Apply permission to execute: chmod +x /usr/local/bin/openvpn
-#use: ~> openvpn [start|stop|restart]
+#Apply permission to execute: chmod +x /usr/local/bin/OPENVPN
+#use: ~> OPENVPN [start|stop|restart]
 action=$1
 if [ "$action" != 'start' ] && [ "$action" != 'stop' ] && [ "$action" != 'restart' ]
 	then
@@ -162,7 +160,7 @@ if [ "$action" == 'restart' ]; then
 /etc/init.d/openvpn start
 fi
 #-------------------------------------------------
-#Apply permission to execute: chmod +x /usr/local/bin/openvpn
+#Apply permission to execute: chmod +x /usr/local/bin/OPENVPN
 #use: ~> openvpn [start|stop|restart]
 
 
