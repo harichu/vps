@@ -142,7 +142,7 @@ dh /etc/openvpn/easy-rsa/keys/dh2048.pem
 remote-cert-tls client
 server-bridge 192.168.5.215 255.255.255.0 192.168.5.216 192.168.5.249
 client-to-client
-keepalive 10 120
+keepalive 10 60
 comp-lzo
 persist-key
 persist-tun
