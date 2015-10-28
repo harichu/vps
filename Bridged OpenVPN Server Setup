@@ -1,0 +1,175 @@
+VM Settings
+Allocate at least 768 MB of memory, and choose the default hard drive settings. In the newly created VM's settings, set:
+
+General > Advanced:
+Shared Clipboard: Bidirectional
+Drag'n'Drop: Bidirectional
+
+Network > Adapter 1:
+Attached to: Bridged Adapter
+Name: select your Ethernet interface/adapter
+Under Advanced, Promiscuous Mode: Allow All
+
+-----------------------------------------
+yum -y update && yum -y install which wget nano nmap bzip2 unzip zip gcc gcc-c++
+wget http://epel.mirror.net.in/epel/6/i386/epel-release-6-8.noarch.rpm
+rpm -Uvh epel-release-6-8.noarch.rpm
+
+yum install -y openvpn easy-rsa bridge-utils
+
+Copy Easy-RSA to OpenVPN's directory:
+
+cp -r /usr/share/easy-rsa/2.0 /etc/openvpn/easy-rsa
+
+Now we'll make the credentials (certificates and keys) for OpenVPN authentication. Go to Easy-RSA's directory:
+
+cd /etc/openvpn/easy-rsa
+
+source vars
+./clean-all
+./build-ca
+./build-key-server server
+./build-dh
+./build-key ClientNAME
+
+---------------------------------
+VPN Setup
+ Free IP address for Linux VM: 192.168.5.100
+Netmask: 255.255.255.0
+Broadcast address: 192.168.5.255
+Router's IP address: 192.168.5.1
+
+We'll use the text editor “nano” to create a script called “openvpn-bridge” that performs the Ethernet bridging. Enter 
+---------------------------------
+nano /etc/openvpn/bridge-up
+#!/bin/sh
+
+# Define Bridge Interface
+br="br0"
+
+# Define list of TAP interfaces to be bridged,
+# for example tap="tap0 tap1 tap2".
+tap="tap0"
+
+# Define physical ethernet interface to be bridged
+# with TAP interface(s) above.
+eth="eth4"
+eth_ip="192.168.5.215"
+eth_netmask="255.255.255.0"
+eth_broadcast="192.168.5.255"
+eth_gateway="192.168.5.1"
+
+    for t in $tap; do
+        openvpn --mktun --dev $t
+    done
+
+    brctl addbr $br
+    brctl addif $br $eth
+
+    for t in $tap; do
+        brctl addif $br $t
+    done
+
+    for t in $tap; do
+        ifconfig $t 0.0.0.0 promisc up
+    done
+
+    sleep 10
+
+    ifconfig $eth 0.0.0.0 promisc up
+
+    ifconfig $br $eth_ip netmask $eth_netmask broadcast $eth_broadcast
+
+    route add default gw $eth_gateway
+
+exit 0
+
+#chmod +x /etc/openvpn/bridge-up
+
+
+nano /etc/openvpn/bridge-down
+#!/bin/sh
+
+# Define Bridge Interface
+br="br0"
+
+# Define list of TAP interfaces to be bridged,
+# for example tap="tap0 tap1 tap2".
+tap="tap0"
+
+# Define physical ethernet interface to be bridged
+# with TAP interface(s) above.
+eth="eth4"
+eth_ip="192.168.5.215"
+eth_netmask="255.255.255.0"
+eth_broadcast="192.168.5.255"
+eth_gateway="192.168.5.1"
+
+    ifconfig $br down
+    brctl delbr $br
+
+    for t in $tap; do
+        openvpn --rmtun --dev $t
+    done
+
+    ifconfig $eth $eth_ip netmask $eth_netmask broadcast $eth_broadcast
+
+    route add default gw $eth_gateway
+   
+exit 0
+
+#chmod +x /etc/openvpn/bridge-down
+
+#Setting to run on start
+nano /etc/rc.local
+#add to bottom 
+/bin/sh /etc/openvpn/bridge-up > /dev/null &
+
+--------------------------------------------------
+Now we'll create the server configuration file. Enter
+
+nano /etc/openvpn/server.conf
+
+Copy and paste the following text:
+
+port 1194
+proto udp
+dev tap0
+ca /etc/openvpn/easy-rsa/keys/ca.crt
+cert /etc/openvpn/easy-rsa/keys/server.crt
+key /etc/openvpn/easy-rsa/keys/server.key
+dh /etc/openvpn/easy-rsa/keys/dh2048.pem
+remote-cert-tls client
+server-bridge 192.168.5.215 255.255.255.0 192.168.5.216 192.168.5.249
+client-to-client
+keepalive 10 120
+comp-lzo
+persist-key
+persist-tun
+status /var/log/openvpn-status.log
+log-append /var/log/openvpn.log
+verb 3
+
+----------------------
+Starting the VPN Server
+chkconfig --level 2345 openvpn on
+
+---------------------------------------------
+OpenVPN Client Setup
+Client Configuration
+
+Create ClientName.ovpn and copy to C:\Program Files\OpenVPN\config
+
+client
+dev tap0
+proto udp
+remote PUBLIC_IP_ADDRESS 1194
+persist-key
+persist-tun
+ca ca.crt
+cert joe.crt
+key joe.key
+remote-cert-tls server
+comp-lzo
+verb 3
+
