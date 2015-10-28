@@ -161,7 +161,7 @@ if [ "$action" == 'restart' ]; then
 fi
 #-------------------------------------------------
 #Apply permission to execute: chmod +x /usr/local/bin/OPENVPN
-#use: ~> openvpn [start|stop|restart]
+#use: ~> OPENVPN [start|stop|restart]
 
 
 #-------------------------------------------------
