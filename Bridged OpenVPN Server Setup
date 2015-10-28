@@ -154,8 +154,9 @@ if [ "$action" == 'STOP' ]; then
 /etc/init.d/openvpn stop
 fi
 if [ "$action" == 'RESTART' ]; then
-/etc/init.d/openvpn stop
 /bin/sh /etc/openvpn/bridge-down > /dev/null &
+/etc/init.d/openvpn stop
+ sleep 3
 /bin/sh /etc/openvpn/bridge-up > /dev/null &
 /etc/init.d/openvpn start
 fi
