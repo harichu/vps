@@ -22,10 +22,10 @@ NETMASK=255.255.255.0
 #2. Install tools: Nano editor, Nmap
 #	Make sure you are up to date
 sudo yum -y update && yum -y install which wget nano nmap  bzip2 unzip zip gcc gcc-c++
-#yum -y upgrade
-#yum -y install fileutils ncurses-devel pam-devel libxml2-devel libxslt-devel
-#yum -y install binutils autoconf automake libtool zlib lsof man man-pages mlocate quota yum-utils
-#yum -y install sendmail rsync sysstat vixie-cron bzip2-devel m4 flex byacc
+#sudo yum -y upgrade
+#sudo yum -y install fileutils ncurses-devel pam-devel libxml2-devel libxslt-devel
+#sudo yum -y install binutils autoconf automake libtool zlib lsof man man-pages mlocate quota yum-utils
+#sudo yum -y install sendmail rsync sysstat vixie-cron bzip2-devel m4 flex byacc
 
 #3.  Install and syncing NTP time service:
 sudo yum -y install ntp
