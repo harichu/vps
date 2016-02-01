@@ -116,8 +116,11 @@ sudo /etc/init.d/httpd restart
 
 #______Install Vhosts Script______
 sudo mkdir /etc/httpd/vhosts.d
-sudo echo "NameVirtualHost *:80" >>/etc/httpd/conf.d/vhosts.conf
-sudo echo "Include vhosts.d/*.conf" >>/etc/httpd/conf.d/vhosts.conf
+sudo nano /etc/httpd/conf.d/vhosts.conf
+///////////////////////////////
+NameVirtualHost *:80
+Include vhosts.d/*.conf
+///////////////////////////////
 
 #______Install MSSQL Support______
 sudo yum install php55w-mssql -y
