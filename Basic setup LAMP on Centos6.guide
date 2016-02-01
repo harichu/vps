@@ -125,7 +125,7 @@ sudo yum install php55w-mssql -y
 #______Install phpMyAdmin______
 sudo yum install phpmyadmin -y
 #http://www.liquidweb.com/kb/how-to-install-and-configure-phpmyadmin-on-centos-6/
-
+sudo service httpd restart
 
 #-----------------------
 #9.1: Changing server hostname:
