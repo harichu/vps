@@ -21,14 +21,14 @@ NETMASK=255.255.255.0
 
 #2. Install tools: Nano editor, Nmap
 #	Make sure you are up to date
-yum -y update && yum -y install which wget nano nmap  bzip2 unzip zip gcc gcc-c++
+sudo yum -y update && yum -y install which wget nano nmap  bzip2 unzip zip gcc gcc-c++
 #yum -y upgrade
 #yum -y install fileutils ncurses-devel pam-devel libxml2-devel libxslt-devel
 #yum -y install binutils autoconf automake libtool zlib lsof man man-pages mlocate quota yum-utils
 #yum -y install sendmail rsync sysstat vixie-cron bzip2-devel m4 flex byacc
 
 #3.  Install and syncing NTP time service:
-yum -y install ntp
+sudo yum -y install ntp
 chkconfig --levels 235 ntpd on
 ntpdate 0.pool.ntp.org
 /etc/init.d/ntpd start
@@ -36,62 +36,62 @@ ntpdate 0.pool.ntp.org
 #4. Setup Port
 #-----------------------
 #Check the existing rules:
-iptables -L -n
+sudo iptables -L -n
 #Flush all existing rules:
-iptables -F; iptables -X; iptables -Z
-iptables -A INPUT -s [Your-IP-Address] -p tcp --dport 22 -j ACCEPT
+sudo iptables -F; iptables -X; iptables -Z
+sudo iptables -A INPUT -s [Your-IP-Address] -p tcp --dport 22 -j ACCEPT
 #Allow all loopback (lo) traffic and drop all traffic to 127.0.0.0/8 other than lo:
-iptables -A INPUT -i lo -j ACCEPT
-iptables -A INPUT -d 127.0.0.0/8 -j REJECT
+sudo iptables -A INPUT -i lo -j ACCEPT
+sudo iptables -A INPUT -d 127.0.0.0/8 -j REJECT
 #Block some common attacks:
-iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
-iptables -A INPUT -p tcp --tcp-flags ALL NONE -j DROP
-iptables -A INPUT -p tcp --tcp-flags ALL ALL -j DROP
+sudo iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
+sudo iptables -A INPUT -p tcp --tcp-flags ALL NONE -j DROP
+sudo iptables -A INPUT -p tcp --tcp-flags ALL ALL -j DROP
 #Accept all established inbound connections:
-iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+sudo iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 #Allow HTTP and HTTPS inbound traffic:
-iptables -A INPUT -p tcp --dport 80 -j ACCEPT
-iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT
 #Allow SSH connections:
-iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 #Allow NTP connections:
-iptables -A INPUT -p udp --dport 123 -j ACCEPT
+sudo iptables -A INPUT -p udp --dport 123 -j ACCEPT
 #Allow DNS queries:
-iptables -A INPUT -p udp --dport 53 -j ACCEPT
-iptables -A INPUT -p tcp --dport 53 -j ACCEPT
+sudo iptables -A INPUT -p udp --dport 53 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 53 -j ACCEPT
 #Allow ping:
-iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+sudo iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
 #At last, set the default policies:
-iptables -P INPUT DROP
-iptables -P OUTPUT ACCEPT
-iptables -P FORWARD DROP
+sudo iptables -P INPUT DROP
+sudo iptables -P OUTPUT ACCEPT
+sudo iptables -P FORWARD DROP
 #: Save the configurations
 service iptables save
 service iptables restart
 #-----------------------
 
 #Adding EPEL Repository
-wget http://epel.mirror.net.in/epel/6/i386/epel-release-6-8.noarch.rpm
-rpm -Uvh epel-release-6-8.noarch.rpm
-yum repolist
+sudo wget http://epel.mirror.net.in/epel/6/i386/epel-release-6-8.noarch.rpm
+sudo rpm -Uvh epel-release-6-8.noarch.rpm
+sudo yum repolist
 
 #5.______To install Apache______
 #-----------------------
-yum install httpd -y
+sudo yum install httpd -y
 #Start the Apache service and let it to start automatically on every reboot:
-service httpd start
+sudo service httpd start
 chkconfig httpd on
 
 #______Install MariaDB_______
 # is a drop in replacement for MySQL. It is a robust, scalable and reliable SQL server that comes rich set of enhancements.
 #First you have to remove existing MySQL packages if any:
-yum remove mysql* mysql-server mysql-devel mysql-libs
+sudo yum remove mysql* mysql-server mysql-devel mysql-libs
 #Install REMI Repository to resolve MySQL Compatibility issue
-rpm -ivh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+sudo rpm -ivh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
 #Install compat-mysql55 package now:
-yum --enablerepo=remi-test --disablerepo=remi install compat-mysql55
+sudo yum --enablerepo=remi-test --disablerepo=remi install compat-mysql55
 #Create a repository file for MariaDB and add the following lines:
-nano /etc/yum.repos.d/mariadb.repo
+sudo nano /etc/yum.repos.d/mariadb.repo
 ///////////////////////////////////////
 # MariaDB 5.5 CentOS repository list - created 2013-06-06 07:53 UTC
 # http://mariadb.org/mariadb/repositories/
@@ -102,37 +102,37 @@ gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 gpgcheck=1
 /////////////////////////////////////
 #start installing MariaDB:
-yum -y install MariaDB-devel MariaDB-client MariaDB-server -y
+sudo yum -y install MariaDB-devel MariaDB-client MariaDB-server -y
 #Start MariaDB service and let it to start automatically on every reboot:
-service mysql start
-chkconfig mysql on
+sudo service mysql start
+sudo chkconfig mysql on
 # Set MySQL root password
-/usr/bin/mysql_secure_installation 
+sudo /usr/bin/mysql_secure_installation 
 #______Install PHP_______
-yum -y install php55w php55w-mysql
-yum -y install php-gd php-imap php-ldap php-odbc php-pear php-xml php-xmlrpc php-mbstring php-mcrypt php-snmp php-soap php-tidy curl curl-devel
+sudo yum -y install php55w php55w-mysql
+sudo yum -y install php-gd php-imap php-ldap php-odbc php-pear php-xml php-xmlrpc php-mbstring php-mcrypt php-snmp php-soap php-tidy curl curl-devel
 #If you want to install all php modules, enter the command yum install php* -y and restart the httpd service. To verify for the modules, open web browser and navigate to http://server-ip-address/testphp.php. You will able to see all php modules.
 #restart Apache2:
-/etc/init.d/httpd restart
+sudo /etc/init.d/httpd restart
 
 #______Install Vhosts Script______
-mkdir /etc/httpd/vhosts.d
-echo "NameVirtualHost *:80" >>/etc/httpd/conf.d/vhosts.conf
-echo "Include vhosts.d/*.conf" >>/etc/httpd/conf.d/vhosts.conf
+sudo mkdir /etc/httpd/vhosts.d
+sudo echo "NameVirtualHost *:80" >>/etc/httpd/conf.d/vhosts.conf
+sudo echo "Include vhosts.d/*.conf" >>/etc/httpd/conf.d/vhosts.conf
 
 #______Install MSSQL Support______
-rpm -ivh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-5.noarch.rpm
-yum install php55w-mssql -y
+sudo rpm -ivh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-5.noarch.rpm
+sudo yum install php55w-mssql -y
 
 #______Install phpMyAdmin______
-yum install phpmyadmin -y
-http://www.liquidweb.com/kb/how-to-install-and-configure-phpmyadmin-on-centos-6/
+sudo yum install phpmyadmin -y
+sudo http://www.liquidweb.com/kb/how-to-install-and-configure-phpmyadmin-on-centos-6/
 
 
 #-----------------------
 #9.1: Changing server hostname:
-nano -w /etc/sysconfig/network
+sudo nano -w /etc/sysconfig/network
 # 9.2: Find HOSTNAME= and change it to etc srv01.maxisecure.com or something else of your choice:
 HOSTNAME=s01.yourdomain.com
 #9.3: Now a reboot:
-shutdown -r now
+#sudo shutdown -r now
