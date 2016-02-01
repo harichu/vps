@@ -29,9 +29,9 @@ sudo yum -y update && yum -y install which wget nano nmap  bzip2 unzip zip gcc g
 
 #3.  Install and syncing NTP time service:
 sudo yum -y install ntp
-chkconfig --levels 235 ntpd on
-ntpdate 0.pool.ntp.org
-/etc/init.d/ntpd start
+sudo chkconfig --levels 235 ntpd on
+sudo ntpdate 0.pool.ntp.org
+sudo /etc/init.d/ntpd start
 
 #4. Setup Port
 #-----------------------
@@ -66,13 +66,12 @@ sudo iptables -P INPUT DROP
 sudo iptables -P OUTPUT ACCEPT
 sudo iptables -P FORWARD DROP
 #: Save the configurations
-service iptables save
-service iptables restart
+sudo service iptables save
+sudo service iptables restart
 #-----------------------
 
 #Adding EPEL Repository
-sudo wget http://epel.mirror.net.in/epel/6/i386/epel-release-6-8.noarch.rpm
-sudo rpm -Uvh epel-release-6-8.noarch.rpm
+sudo rpm -Uvh https://mirror.webtatic.com/yum/el6/latest.rpm
 sudo yum repolist
 
 #5.______To install Apache______
@@ -80,7 +79,7 @@ sudo yum repolist
 sudo yum install httpd -y
 #Start the Apache service and let it to start automatically on every reboot:
 sudo service httpd start
-chkconfig httpd on
+sudo chkconfig httpd on
 
 #______Install MariaDB_______
 # is a drop in replacement for MySQL. It is a robust, scalable and reliable SQL server that comes rich set of enhancements.
@@ -109,7 +108,7 @@ sudo chkconfig mysql on
 # Set MySQL root password
 sudo /usr/bin/mysql_secure_installation 
 #______Install PHP_______
-sudo yum -y install php55w php55w-mysql
+sudo yum -y install php55w php55w-mysql php55w-mssql php55w-odbc php55w-opcache
 sudo yum -y install php-gd php-imap php-ldap php-odbc php-pear php-xml php-xmlrpc php-mbstring php-mcrypt php-snmp php-soap php-tidy curl curl-devel
 #If you want to install all php modules, enter the command yum install php* -y and restart the httpd service. To verify for the modules, open web browser and navigate to http://server-ip-address/testphp.php. You will able to see all php modules.
 #restart Apache2:
@@ -121,12 +120,11 @@ sudo echo "NameVirtualHost *:80" >>/etc/httpd/conf.d/vhosts.conf
 sudo echo "Include vhosts.d/*.conf" >>/etc/httpd/conf.d/vhosts.conf
 
 #______Install MSSQL Support______
-sudo rpm -ivh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-5.noarch.rpm
 sudo yum install php55w-mssql -y
 
 #______Install phpMyAdmin______
 sudo yum install phpmyadmin -y
-sudo http://www.liquidweb.com/kb/how-to-install-and-configure-phpmyadmin-on-centos-6/
+#http://www.liquidweb.com/kb/how-to-install-and-configure-phpmyadmin-on-centos-6/
 
 
 #-----------------------
