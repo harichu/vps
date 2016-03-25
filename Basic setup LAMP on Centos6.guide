@@ -71,6 +71,10 @@ sudo service iptables restart
 #-----------------------
 
 #Adding EPEL Repository
+#http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/
+## RHEL/CentOS 6 64-Bit ##
+# wget http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+# rpm -ivh epel-release-6-8.noarch.rpm
 sudo rpm -Uvh https://mirror.webtatic.com/yum/el6/latest.rpm
 sudo yum repolist
 
