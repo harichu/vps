@@ -22,7 +22,7 @@ NETMASK=255.255.255.0
 #2. Install tools: Nano editor, Nmap
 #	Make sure you are up to date
 sudo yum -y update & yum -y upgrade
-sudo yum -y install which wget nano nmap bzip2 unzip zip gcc gcc-c++ libxml2-devel gd-develmake openssl-devel curl-devel patch
+sudo yum -y install which wget nano nmap bzip2 unzip zip gcc gcc-c++ libxml2-devel gd-develmake openssl-devel curl-devel libmcrypt-devel patch
 sudo yum -y install perl gcc-c++ flex bison openssl-devel openssl make patch quota autoconf automake zlib-devel libxml2-devel bzip2-devel curl-devel libXpm-devel libjpeg-devel libpng-devel freetype-devel libc-client-devel libmcrypt-devel mhash-devel pcre-devel sqlite-devel libxslt-devel gd ruby ruby-devel ruby-rdoc expat-devel
 #sudo yum -y install fileutils ncurses-devel pam-devel libxslt-devel
 #sudo yum -y install binutils autoconf automake libtool zlib lsof man man-pages mlocate quota yum-utils
