@@ -1,5 +1,5 @@
 #!/bin/bash
-OUTPUT=/etc/motd.1
+OUTPUT=/etc/motd
 rm -f $OUTPUT
 
 echo -e "
@@ -34,4 +34,4 @@ PHP: `php -v`
 
 SQL: `mysql --version`
 *********************************************************************
-"
+" >> $OUTPUT
