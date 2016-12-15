@@ -49,10 +49,10 @@ if [ "$action" == 'create' ] || [ "$action" == 'add' ]; then
 		if ! [ -d $rootDir ]; then
 			### create the directory
 			mkdir -p $rootDir
-			#mkdir $logDir
+			mkdir -p $logDir
 			### give permission to root dir
 			chmod 755 $rootDir
-			chown -R apache:apache $rootDir
+			chown -R nginx:nginx $userDir
 			#chmod 755 $logDir
 			### write test file in the new domain dir
 			if ! echo "<?php echo phpinfo(); ?>" > $rootDir/info.php
