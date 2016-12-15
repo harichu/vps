@@ -126,13 +126,13 @@ if [ "$action" == 'delete' ] || [ "$action" == 'del' ]; then
 		fi
 
 		### check if directory exists or not
-		if [ -d $rootDir ]; then
+		if [ -d $userDir ]; then
 			echo -e $"Delete host root directory ? (y/n)"
 			read deldir
 
 			if [ "$deldir" == 'y' -o "$deldir" == 'Y' ]; then
 				### Delete the directory
-				rm -rf $rootDir
+				rm -rf $userDir
 				echo -e $"Directory deleted"
 			else
 				echo -e $"Host directory conserved"
@@ -149,7 +149,7 @@ if [ "$action" == 'fixpermission' ]; then
 		chown -R nginx:nginx $rootDir
 		find $rootDir -type f -exec chmod 644 {} \;
 		find $rootDir -type d -exec chmod 775 {} \;
-		#chown root:root $rootDir
+		#chown -R root:root $rootDir
 		echo -e $"Fix Permission Success!"
 		exit 0;
 fi
