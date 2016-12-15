@@ -65,20 +65,33 @@ if [ "$action" == 'create' ] || [ "$action" == 'add' ]; then
 		fi
 
 		### create virtual host rules file
-		if ! echo "<VirtualHost *:80>
-			ServerAdmin $email
-			ServerName $domain
-			ServerAlias $domain
-			DocumentRoot $rootDir
-			<Directory $rootDir>
-				Options Indexes FollowSymLinks ExecCGI Includes
-				AllowOverride All
-				Order allow,deny
-				Allow from all 
-			</Directory>
-			ErrorLog logs/$domain-error.log
-			CustomLog logs/$domain-access.log combined
-		</VirtualHost>" > $sitesAvailabledomain
+		if ! echo "server {
+				    listen       80;
+				    server_name  $domain www.$domain;
+				    
+				    #access_log  $logDir/access.log  main;
+				    error_log  $logDir/error.log warn; 
+				    root   $rootDir;
+
+				    location / {
+
+				    }
+
+				    #error_page  404              /404.html;
+
+				    # redirect server error pages to the static page /50x.html
+				    #
+				    error_page   500 502 503 504  /50x.html;
+				    location = /50x.html {
+					root   /usr/share/nginx/html; 
+				    }
+
+					include /etc/nginx/conf.d/php.conf;
+					#include /etc/nginx/conf.d/staticfiles.conf;
+					include /etc/nginx/conf.d/block.conf;
+
+				}         
+			" > $sitesAvailabledomain
 		then
 			echo -e $"There is an ERROR creating $domain file"
 			exit;
