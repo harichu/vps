@@ -1,0 +1,142 @@
+#!/bin/bash
+### NOTICE: Apply permission to execute: chmod +x /usr/local/sbin/vhosts
+### USE: vhosts [add|del] [domain]
+### Set default parameters
+action=$1
+domain=$2
+owner=$(who am i | awk '{print $1}')
+sitesAvailable='/etc/nginx/domains/'
+homeDir='/home/domains/'
+dir_public_html='/public_html'
+dir_log='/logs'
+sitesAvailabledomain=$sitesAvailable$domain.conf
+userDir=$homeDir$domain
+rootDir=$userDir$dir_public_html
+logDir=$userDir$dir_log
+### don't modify from here unless you know what you are doing ####
+
+if [ "$(whoami)" != 'root' ]; then
+	echo $"You have no permission to run $0 as non-root user. Use sudo"
+		exit 1;
+fi
+
+if [ "$action" != 'create' ] && [ "$action" != 'add' ] && [ "$action" != 'delete' ] && [ "$action" != 'del' ]  && [ "$action" != 'fixpermission' ]
+	then
+		echo $"You need to prompt for action (create or delete) -- Lower-case only"
+		exit 1;
+fi
+
+while [ "$domain" == "" ]
+do
+	echo -e $"Please provide domain. e.g.dev,staging"
+	read domain
+done
+
+		### check if directory exists or not
+		if ! [ -d $sitesAvailable ]; then
+			### create the vhosts directory
+			mkdir -p $sitesAvailable			
+		fi
+		
+if [ "$action" == 'create' ] || [ "$action" == 'add' ]; then
+		### check if domain already exists
+		if [ -e $sitesAvailabledomain ]; then
+			echo -e $"This domain already exists.\nPlease Try Another one"
+			exit;
+		fi
+
+		### check if directory exists or not
+		if ! [ -d $rootDir ]; then
+			### create the directory
+			mkdir -p $rootDir
+			#mkdir $logDir
+			### give permission to root dir
+			chmod 755 $rootDir
+			chown -R apache:apache $rootDir
+			#chmod 755 $logDir
+			### write test file in the new domain dir
+			if ! echo "<?php echo phpinfo(); ?>" > $rootDir/info.php
+			then
+				echo $"ERROR: Not able to write in file $rootDir/info.php. Please check permissions"
+				exit;
+			else
+				echo $"Added content to $rootDir/info.php"
+			fi
+		fi
+
+		### create virtual host rules file
+		if ! echo "<VirtualHost *:80>
+			ServerAdmin $email
+			ServerName $domain
+			ServerAlias $domain
+			DocumentRoot $rootDir
+			<Directory $rootDir>
+				Options Indexes FollowSymLinks ExecCGI Includes
+				AllowOverride All
+				Order allow,deny
+				Allow from all 
+			</Directory>
+			ErrorLog logs/$domain-error.log
+			CustomLog logs/$domain-access.log combined
+		</VirtualHost>" > $sitesAvailabledomain
+		then
+			echo -e $"There is an ERROR creating $domain file"
+			exit;
+		else
+			echo -e $"\nNew Virtual Host Created\n"
+		fi
+
+		if [ "$owner" == "" ]; then
+			chown -R $(whoami):$(whoami) $rootDir
+		else
+			chown -R $owner:$owner $rootDir
+		fi
+
+		### restart nginx
+		service nginx reload
+
+		### show the finished message
+		echo -e $"Complete! \nYou now have a new Virtual Host \nYour new host is: http://$domain \nAnd its located at $rootDir"
+		exit;
+fi
+if [ "$action" == 'delete' ] || [ "$action" == 'del' ]; then
+		### check whether domain already exists
+		if ! [ -e $sitesAvailabledomain ]; then
+			echo -e $"This domain does not exist.\nPlease try another one"
+			exit;
+		else
+			### restart nginx
+			service nginx reload
+
+			### Delete virtual host rules files
+			rm $sitesAvailabledomain -f
+		fi
+
+		### check if directory exists or not
+		if [ -d $rootDir ]; then
+			echo -e $"Delete host root directory ? (y/n)"
+			read deldir
+
+			if [ "$deldir" == 'y' -o "$deldir" == 'Y' ]; then
+				### Delete the directory
+				rm -rf $rootDir
+				echo -e $"Directory deleted"
+			else
+				echo -e $"Host directory conserved"
+			fi
+		else
+			echo -e $"Host directory not found. Ignored"
+		fi
+
+		### show the finished message
+		echo -e $"Complete!\nYou just removed Virtual Host $domain"
+		exit 0;
+fi
+if [ "$action" == 'fixpermission' ]; then
+		chown -R nginx:nginx $rootDir
+		find $rootDir -type f -exec chmod 644 {} \;
+		find $rootDir -type d -exec chmod 775 {} \;
+		#chown root:root $rootDir
+		echo -e $"Fix Permission Success!"
+		exit 0;
+fi
