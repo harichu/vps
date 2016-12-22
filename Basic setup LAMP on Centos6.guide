@@ -72,53 +72,26 @@ sudo service iptables save
 sudo service iptables restart
 #-----------------------
 
+#. Thêm repo cần thiết
 #Adding EPEL Repository
-#http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/
-## RHEL/CentOS 6 64-Bit ##
-# wget http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-# rpm -ivh epel-release-6-8.noarch.rpm
-sudo rpm -Uvh https://mirror.webtatic.com/yum/el6/latest.rpm
+#CentOS 7/6.5/5.10 EPEL repository
+sudo yum install -y epel-release
+#CentOS 7/6.5/5.10 Remi repository
+## CentOS 7 ##
+rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+## CentOS 6 ##
+rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+## CentOS 5 ##
+rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-5.rpm
 sudo yum repolist
 
-#5.______To install Apache______
+#.______To install Apache, PHP______
 #-----------------------
-sudo yum install httpd -y
+## PHP 5.6 ##
+sudo yum --enablerepo=remi,remi-php56 install -y httpd php php-common
 #Start the Apache service and let it to start automatically on every reboot:
 sudo service httpd start
 sudo chkconfig httpd on
-
-#______Install MariaDB_______
-# is a drop in replacement for MySQL. It is a robust, scalable and reliable SQL server that comes rich set of enhancements.
-#First you have to remove existing MySQL packages if any:
-sudo yum remove mysql* mysql-server mysql-devel mysql-libs
-#Install REMI Repository to resolve MySQL Compatibility issue
-sudo rpm -ivh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
-#Install compat-mysql55 package now:
-sudo yum --enablerepo=remi-test --disablerepo=remi install compat-mysql55
-#Create a repository file for MariaDB and add the following lines:
-sudo nano /etc/yum.repos.d/mariadb.repo
-///////////////////////////////////////
-# MariaDB 5.5 CentOS repository list - created 2013-06-06 07:53 UTC
-# http://mariadb.org/mariadb/repositories/
-[mariadb]
-name = MariaDB
-baseurl = http://yum.mariadb.org/5.5/centos6-amd64
-gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
-gpgcheck=1
-/////////////////////////////////////
-#start installing MariaDB:
-sudo yum -y install MariaDB-devel MariaDB-client MariaDB-server -y
-#Start MariaDB service and let it to start automatically on every reboot:
-sudo service mysql start
-sudo chkconfig mysql on
-# Set MySQL root password
-sudo /usr/bin/mysql_secure_installation 
-#______Install PHP_______
-sudo yum -y install php55w php55w-mysql php55w-mssql php55w-odbc php55w-opcache
-sudo yum -y install php-gd php-imap php-ldap php-odbc php-pear php-xml php-xmlrpc php-mbstring php-mcrypt php-snmp php-soap php-tidy curl curl-devel
-#If you want to install all php modules, enter the command yum install php* -y and restart the httpd service. To verify for the modules, open web browser and navigate to http://server-ip-address/testphp.php. You will able to see all php modules.
-#restart Apache2:
-sudo /etc/init.d/httpd restart
 
 #______Install Vhosts Script______
 sudo mkdir /etc/httpd/vhosts.d
@@ -128,12 +101,75 @@ NameVirtualHost *:80
 Include vhosts.d/*.conf
 ///////////////////////////////
 
-#______Install MSSQL Support______
-sudo yum install php55w-mssql -y
+
+#. Cài đặt PHP module
+sudo yum --enablerepo=remi,remi-php56 install -y  php-mssql php-odbc php-gd php-imap php-ldap php-odbc php-pear php-xml php-xmlrpc php-mbstring php-mcrypt php-snmp php-soap php-tidy curl curl-devel php-opcache php-pecl-apcu php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-pecl-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml
+#If you want to install all php modules, enter the command yum install php* -y and restart the httpd service. To verify for the modules, open web browser and navigate to http://server-ip-address/testphp.php. You will able to see all php modules.
+#restart Apache2:
+sudo /etc/init.d/httpd restart
+
+#______Install MariaDB_______
+#Thêm MariaDB repo
+#Lưu ý: Không cần thực hiện trên CentOS 7. Phiên bản MariaDB trên CentOS 7 hiện nay là 5.5.37
+## CentOS 6/5 MariaDB 5.5 ##
+wget -O /etc/yum.repos.d/MariaDB.repo http://mariadb.if-not-true-then-false.com/centos/$(rpm -E %centos)/$(uname -i)/5
+
+## CentOS 6/5 MariaDB 10.0 ##
+wget -O /etc/yum.repos.d/MariaDB.repo http://mariadb.if-not-true-then-false.com/centos/$(rpm -E %centos)/$(uname -i)/10
+
+#. Cài đặt hoặc update MariaDB
+/////////////////////////////////////
+#start installing MariaDB:
+sudo yum -y install MariaDB MariaDB-client MariaDB-server
+#Start MariaDB service and let it to start automatically on every reboot:
+sudo service mysql start
+sudo chkconfig mysql on
+
+# Set MySQL root password
+sudo /usr/bin/mysql_secure_installation 
 
 #______Install phpMyAdmin______
-sudo yum install phpmyadmin -y
 #http://www.liquidweb.com/kb/how-to-install-and-configure-phpmyadmin-on-centos-6/
+yum --enablerepo=remi,remi-php56 install -y phpMyAdmin
+
+#Configure Apache Files
+nano /etc/httpd/conf.d/phpMyAdmin.conf
+
+#==> Change
+<Directory /usr/share/phpMyAdmin/>
+   AddDefaultCharset UTF-8
+
+   <IfModule mod_authz_core.c>
+     # Apache 2.4
+     Require local
+   </IfModule>
+   <IfModule !mod_authz_core.c>
+     # Apache 2.2
+     Order Deny,Allow
+     Deny from All
+     Allow from 127.0.0.1
+     Allow from ::1
+   </IfModule>
+</Directory>
+
+#==> To
+<Directory /usr/share/phpMyAdmin/>
+   AddDefaultCharset UTF-8
+
+   <IfModule mod_authz_core.c>
+     # Apache 2.4
+     Require local
+   </IfModule>
+   <IfModule !mod_authz_core.c>
+     # Apache 2.2
+     Order Deny,Allow
+     Deny from All
+     # Allow from 127.0.0.1
+     Allow from 192.168.1.0/24
+     Allow from ::1
+   </IfModule>
+</Directory>
+
 sudo service httpd restart
 
 #-----------------------
