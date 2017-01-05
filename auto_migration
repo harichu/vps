@@ -1,0 +1,10 @@
+#!/bin/bash
+#NOTICE: Apply permission to execute: chmod +x /usr/local/sbin/auto_migration
+
+/opt/share/health-checkup/source/rails/health_checkup/bin/rake db:abort_if_pending_migrations >/dev/null 2>&1
+
+migrate_status=`/opt/share/health-checkup/source/rails/health_checkup/bin/rake db:migrate:status | grep "down" -m1`
+
+if [ "$migrate_status" != "" ]; then
+  /opt/share/health-checkup/source/rails/health_checkup/bin/rake db:migrate
+fi
