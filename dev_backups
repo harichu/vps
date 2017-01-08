@@ -13,11 +13,11 @@ do
 done
 
 if [ "$action" == "" ]; then
-	action="-c"
+	action="-zip"
 fi
 
-if [ "$action" != '-c' ] && [ "$action" != '-d' ]; then
-	echo $"You need to prompt for action (compress [-c] or extra [-e]) -- Lower-case only"
+if [ "$action" != '-c' ] && [ "$action" != '-zip' ] && [ "$action" != '-e' ] && [ "$action" != '-unzip' ]; then
+	echo $"You need to prompt for action (compress [-c or -zip] or extra [-e or -unzip]) -- Lower-case only"
 	exit 1;
 fi
 
@@ -32,7 +32,7 @@ storage_dir="${storage_dir}/${backup_dir_arr[0]}"
 backup_folder="${backup_dir_arr[@]:-1:1}"
 now="`date +%Y_%m_%d__%H_%M_%S`"
 
-if [ "$action" == '-c' ]; then
+if [ "$action" == '-c' ] || [ "$action" == '-zip' ]; then
 	mkdir -p "${storage_dir}"
 	find $storage_dir/$backup_name_*.tar.gz -mtime +7 -type f -delete
 	cd "${backup_dir}"
@@ -55,7 +55,7 @@ ____ ${storage_dir}
 	exit 0
 fi
 
-if [ "$action" == '-e' ]; then	
+if [ "$action" == '-e' ] || [ "$action" == '-unzip' ]; then	
 	if [ "$unzip_file" != '' ]; then
 		if [ -f "$unzip_file" ] || [ -f "${storage_dir}/$unzip_file" ]; then
 			if [ ! -f "$unzip_file" ]; then
@@ -70,6 +70,8 @@ if [ "$action" == '-e' ]; then
 		tar -zvxf "${storage_dir}/${backup_name}.tar.gz"
 	fi
 	clear
+	echo "=================================================="
 	echo "Unzip success."
+	echo "=================================================="
 	exit 0
 fi
