@@ -78,11 +78,11 @@ sudo service iptables restart
 sudo yum install -y epel-release
 #CentOS 7/6.5/5.10 Remi repository
 ## CentOS 7 ##
-rpm -Uvh http://mirror.innosol.asia/remi/enterprise/remi-release-7.rpm
+rpm -Uvh https://rpms.remirepo.net/enterprise/remi-release-7.rpm
 ## CentOS 6 ##
-rpm -Uvh http://mirror.innosol.asia/remi/enterprise/remi-release-6.rpm
+rpm -Uvh https://rpms.remirepo.net/enterprise/remi-release-6.rpm
 ## CentOS 5 ##
-rpm -Uvh http://mirror.innosol.asia/remi/enterprise/remi-release-5.rpm
+rpm -Uvh https://rpms.remirepo.net/enterprise/remi-release-5.rpm
 sudo yum repolist
 
 #.______To install Apache, PHP______
