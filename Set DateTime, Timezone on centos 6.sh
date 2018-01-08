@@ -7,4 +7,6 @@ sudo cp /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
 
 # Sync your system time and date with ntp (Network Time Protocol) over internet
 sudo yum install -y ntp
+sudo chkconfig ntpd on
 sudo ntpdate pool.ntp.org
+/etc/init.d/ntpd start
