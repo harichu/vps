@@ -2,7 +2,7 @@
 ### NOTICE: Apply permission to execute: chmod +x /usr/local/sbin/rclone_backups.sh
 
 SERVER_NAME=LINODE.DATA
-REMOTE_NAME=gdrive
+REMOTE_NAMES=gdrive,yandex
 
 TIMESTAMP=$(date +"%F")
 BACKUP_DIR="/.BACKUPS/$TIMESTAMP"
@@ -68,11 +68,16 @@ if [ ! -f $BACKUP_LOCK ]; then
   size=$(du -sh $BACKUP_DIR | awk '{ print $1}')
 
   echo "Starting Uploading Backup";
-  /usr/sbin/rclone move $BACKUP_DIR "$REMOTE_NAME:$SERVER_NAME/$TIMESTAMP" >> /var/log/rclone.log 2>&1
+	IFS=',' read -r -a REMOTE_NAME_ARR <<< "$REMOTE_NAMES"
+	for REMOTE_NAME in "${REMOTE_NAME_ARR[@]}"
+	do
+		#echo "$REMOTE_NAME"	
+		/usr/sbin/rclone move $BACKUP_DIR "$REMOTE_NAME:$SERVER_NAME/$TIMESTAMP" >> /var/log/rclone.log 2>&1
+		/usr/sbin/rclone -q --min-age 7d delete "$REMOTE_NAME:$SERVER_NAME" #Remove all backups older than 7 day
+		/usr/sbin/rclone -q --min-age 7d rmdirs "$REMOTE_NAME:$SERVER_NAME" #Remove all empty folders older than 7 day
+	done
   # Clean up
   rm -rf $BACKUP_DIR
-  /usr/sbin/rclone -q --min-age 7d delete "$REMOTE_NAME:$SERVER_NAME" #Remove all backups older than 7 day
-  /usr/sbin/rclone -q --min-age 7d rmdirs "$REMOTE_NAME:$SERVER_NAME" #Remove all empty folders older than 7 day
   echo "Finished";
   echo '';
 
