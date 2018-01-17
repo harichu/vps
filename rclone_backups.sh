@@ -1,14 +1,14 @@
 #!/bin/bash
 ### NOTICE: Apply permission to execute: chmod +x /usr/local/sbin/rclone_backups.sh
 
-SERVER_NAME=LINODE.DATA
-REMOTE_NAMES=gdrive,yandex
+SERVER_NAME=LINODE.Desi-Works
+REMOTE_NAMES=Gdrive_jimmygold,yandex
 
 TIMESTAMP=$(date +"%F")
 BACKUP_DIR="/.BACKUPS/$TIMESTAMP"
 BACKUP_LOCK="/.BACKUPS/backup.lock"
 MYSQL_USER="root"
-MYSQL_PASSWORD="password"
+MYSQL_PASSWORD="n87k2Hg3PVfh"
 MYSQL=/usr/bin/mysql
 MYSQLDUMP=/usr/bin/mysqldump
 SECONDS=0
@@ -54,7 +54,7 @@ if [ ! -f $BACKUP_LOCK ]; then
   echo '';
 
   echo "Starting Backup Letsencrypt";
-  cp -r /etc/letsencrypt/ $BACKUP_DIR/letsencrypt/
+  cp -r /root/letsencrypt/ $BACKUP_DIR/letsencrypt/
   echo "Finished";
   echo '';
 
@@ -71,10 +71,10 @@ if [ ! -f $BACKUP_LOCK ]; then
 	IFS=',' read -r -a REMOTE_NAME_ARR <<< "$REMOTE_NAMES"
 	for REMOTE_NAME in "${REMOTE_NAME_ARR[@]}"
 	do
-		#echo "$REMOTE_NAME"	
-		/usr/sbin/rclone move $BACKUP_DIR "$REMOTE_NAME:$SERVER_NAME/$TIMESTAMP" >> /var/log/rclone.log 2>&1
+		echo "  - $REMOTE_NAME:";
+		/usr/sbin/rclone copy $BACKUP_DIR "$REMOTE_NAME:$SERVER_NAME/$TIMESTAMP" >> /var/log/rclone.log 2>&1
 		/usr/sbin/rclone -q --min-age 7d delete "$REMOTE_NAME:$SERVER_NAME" #Remove all backups older than 7 day
-		/usr/sbin/rclone -q --min-age 7d rmdirs "$REMOTE_NAME:$SERVER_NAME" #Remove all empty folders older than 7 day
+		/usr/sbin/rclone -q --min-age 7d rmdirs "$REMOTE_NAME:$SERVER_NAME" #Remove all empty folders older than 7 day		
 	done
   # Clean up
   rm -rf $BACKUP_DIR
