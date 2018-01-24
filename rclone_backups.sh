@@ -36,8 +36,8 @@ if [ ! -f $BACKUP_LOCK ]; then
       domain=${D##*/} # Domain name
       if [ $domain != "backups" ]; then
         echo "- "$domain;
-        #zip -r $BACKUP_DIR/$domain.zip /home/$domain/ -q -x "/home/$domain/**\*/wp-content/cache/**\*" #Exclude cache
-        tar -zcvf $BACKUP_DIR/$domain.tar.gz /home/$domain/ --exclude="/home/$domain/**\*/wp-content/cache/**\*" #Exclude cache
+        #zip -r $BACKUP_DIR/$domain.zip /home/$domain -q -x "/home/$domain/**\*/wp-content/cache/**\*" #Exclude cache
+        tar -zcvf $BACKUP_DIR/$domain.tar.gz /home/$domain --exclude="/home/$domain/**\*/wp-content/cache/**\*" #Exclude cache
       fi
     fi
   done
