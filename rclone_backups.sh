@@ -24,7 +24,7 @@ if [ ! -f $BACKUP_LOCK ]; then
   echo "Starting Backup Database";
 
   for db in $databases; do
-		$MYSQLDUMP --force --opt --user=$MYSQL_USER -p$MYSQL_PASSWORD --databases $db | gzip > "$BACKUP_DIR/mysql/$db.sql.gz"
+    $MYSQLDUMP --force --opt --user=$MYSQL_USER -p$MYSQL_PASSWORD --databases $db | gzip > "$BACKUP_DIR/mysql/$db.sql.gz"
   done
   echo "Finished";
   echo '';
@@ -32,32 +32,33 @@ if [ ! -f $BACKUP_LOCK ]; then
   echo "Starting Backup Website";
   # Loop through /home directory
   for D in /home/*; do
-		if [ -d "${D}" ]; then #If a directory
-			domain=${D##*/} # Domain name
-			if [ $domain != "backups" ]; then
-				echo "- "$domain;
-				zip -r $BACKUP_DIR/$domain.zip /home/$domain/ -q -x /home/$domain/*\*/wp-content/cache/**\* #Exclude cache
-			fi
-		fi
+    if [ -d "${D}" ]; then #If a directory
+      domain=${D##*/} # Domain name
+      if [ $domain != "backups" ]; then
+        echo "- "$domain;
+        #zip -r $BACKUP_DIR/$domain.zip /home/$domain/ -q -x "/home/$domain/**\*/wp-content/cache/**\*" #Exclude cache
+        tar -zcvf $BACKUP_DIR/$domain.tar.gz /home/$domain/ --exclude="/home/$domain/**\*/wp-content/cache/**\*" #Exclude cache
+      fi
+    fi
   done
   echo "Finished";
   echo '';
 
   echo "Starting Backup Nginx Configuration";
-	if [ -d /etc/nginx/ ]; then
-		cp -r /etc/nginx/ $BACKUP_DIR/nginx/
-	fi  
+  if [ -d /etc/nginx/ ]; then
+    cp -r /etc/nginx/ $BACKUP_DIR/nginx/
+  fi  
   echo "Finished";
   echo '';
 
   echo "Starting Backup Apache config";
   mkdir -p $BACKUP_DIR/apache/
-	if [ -d /etc/httpd/ ]; then
-		cp -r /etc/httpd/ $BACKUP_DIR/httpd/
-	fi
-	if [ -d /usr/local/apache/ ]; then
-		cp -r /usr/local/apache/ $BACKUP_DIR/apache/
-	fi
+  if [ -d /etc/httpd/ ]; then
+    cp -r /etc/httpd/ $BACKUP_DIR/httpd/
+  fi
+  if [ -d /usr/local/apache/ ]; then
+    cp -r /usr/local/apache/ $BACKUP_DIR/apache/
+  fi
   echo "Finished";
   echo '';
 
@@ -74,14 +75,14 @@ if [ ! -f $BACKUP_LOCK ]; then
   size=$(du -sh $BACKUP_DIR | awk '{ print $1}')
 
   echo "Starting Uploading Backup";
-	IFS=',' read -r -a REMOTE_NAME_ARR <<< "$REMOTE_NAMES"
-	for REMOTE_NAME in "${REMOTE_NAME_ARR[@]}"
-	do
-		echo "  - $REMOTE_NAME:";
-		/usr/sbin/rclone copy $BACKUP_DIR "$REMOTE_NAME:$SERVER_NAME/$TIMESTAMP" >> /var/log/rclone.log 2>&1
-		/usr/sbin/rclone -q --min-age 7d delete "$REMOTE_NAME:$SERVER_NAME" #Remove all backups older than 7 day
-		/usr/sbin/rclone -q --min-age 7d rmdirs "$REMOTE_NAME:$SERVER_NAME" #Remove all empty folders older than 7 day		
-	done
+  IFS=',' read -r -a REMOTE_NAME_ARR <<< "$REMOTE_NAMES"
+  for REMOTE_NAME in "${REMOTE_NAME_ARR[@]}"
+  do
+    echo "  - $REMOTE_NAME:";
+    /usr/sbin/rclone copy $BACKUP_DIR "$REMOTE_NAME:$SERVER_NAME/$TIMESTAMP" >> /var/log/rclone.log 2>&1
+    /usr/sbin/rclone -q --min-age 7d delete "$REMOTE_NAME:$SERVER_NAME" #Remove all backups older than 7 day
+    /usr/sbin/rclone -q --min-age 7d rmdirs "$REMOTE_NAME:$SERVER_NAME" #Remove all empty folders older than 7 day    
+  done
   # Clean up
   rm -rf $BACKUP_DIR
   echo "Finished";
@@ -89,8 +90,8 @@ if [ ! -f $BACKUP_LOCK ]; then
 
   duration=$SECONDS
   echo "Total $size, $(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."
-	
-	rm -f $BACKUP_LOCK
+  
+  rm -f $BACKUP_LOCK
 else
-	echo "Backup action is running...";
+  echo "Backup action is running...";
 fi
