@@ -1,5 +1,8 @@
 #!/bin/bash
-### NOTICE: Apply permission to execute: chmod +x /usr/local/sbin/rclone_backups
+### NOTICE: Apply permission to execute: chmod +x /usr/local/sbin/rclone_backup
+# cronjob
+# EDITOR=nano crontab -e
+# 0 3 * * * sh /usr/local/sbin/rclone_backup > /dev/null 2>&1
 
 SERVER_NAME=LINODE.DATA
 REMOTE_NAMES=gdrive #support multi remote, ex: gdrive,yandex
