@@ -1,17 +1,30 @@
 #!/bin/bash
-### NOTICE: Apply permission to execute: chmod +x /usr/local/sbin/rclone_backups.sh
+### NOTICE: Apply permission to execute: chmod +x /usr/local/sbin/rclone_backups
 
 SERVER_NAME=LINODE.DATA
 REMOTE_NAMES=gdrive #support multi remote, ex: gdrive,yandex
 
 TIMESTAMP=$(date +"%F")
-BACKUP_DIR="/.BACKUPS/$TIMESTAMP"
-BACKUP_LOCK="/.BACKUPS/backup.lock"
+WWW_DIR="/var/www"
+BACKUP_DIR="/.backups/$TIMESTAMP"
+BACKUP_LOCK="/.backups/backup.lock"
 MYSQL_USER="root"
 MYSQL_PASSWORD="password"
 MYSQL=/usr/bin/mysql
 MYSQLDUMP=/usr/bin/mysqldump
 SECONDS=0
+
+function in_array {
+  ARRAY=$2
+  for e in ${ARRAY[*]}
+  do
+    if [[ "$e" == "$1" ]]
+    then
+      return 0
+    fi
+  done
+  return 1
+}
 
 if [ ! -f $BACKUP_LOCK ]; then
   mkdir -p "$BACKUP_DIR"
@@ -31,25 +44,33 @@ if [ ! -f $BACKUP_LOCK ]; then
 
   echo "Starting Backup Website";
   # Loop through /home directory
-  for D in /home/*; do
+  exclude_folder=("backups" "cake-dev" "cgi-bin" "error" "icons" "noindex")
+  for D in $WWW_DIR/*; do
     if [ -d "${D}" ]; then #If a directory
       domain=${D##*/} # Domain name
-      if [ $domain != "backups" ]; then
+	  if ! in_array "$domain" "${exclude_folder[*]}"
+	  then
+		  available_folder=1
+	  else
+		  available_folder=0
+	  fi
+      if [ "$available_folder" == "1" ]; then
         echo "- "$domain;
-        #zip -r $BACKUP_DIR/$domain.zip /home/$domain -q -x "/home/$domain/**\*/wp-content/cache/**\*" #Exclude cache
-        tar -zcvf $BACKUP_DIR/$domain.tar.gz /home/$domain --exclude="/home/$domain/**\*/wp-content/cache/**\*" #Exclude cache
+        #zip -r $BACKUP_DIR/$domain.zip $WWW_DIR/$domain -q -x "$WWW_DIR/$domain/**\*/wp-content/cache/**\*" #Exclude cache
+        tar -zcvf $BACKUP_DIR/$domain.tar.gz $WWW_DIR/$domain --exclude="$WWW_DIR/$domain/**\*/wp-content/cache/**\*" #Exclude cache
       fi
     fi
   done
   echo "Finished";
   echo '';
 
-  echo "Starting Backup Nginx Configuration";
   if [ -d /etc/nginx/ ]; then
-    cp -r /etc/nginx/ $BACKUP_DIR/nginx/
-  fi  
-  echo "Finished";
-  echo '';
+	  echo "Starting Backup Nginx Configuration";
+	  mkdir -p $BACKUP_DIR/nginx/
+	  cp -r /etc/nginx/ $BACKUP_DIR/nginx/
+	  echo "Finished";
+	  echo '';
+  fi
 
   echo "Starting Backup Apache config";
   mkdir -p $BACKUP_DIR/apache/
@@ -63,14 +84,22 @@ if [ ! -f $BACKUP_LOCK ]; then
   echo '';
 
   echo "Starting Backup Cronjob";
-  cp -r /var/spool/cron/ $BACKUP_DIR/cron/
+  mkdir -p $BACKUP_DIR/cron/
+  sudo cp -r /var/spool/cron/ $BACKUP_DIR/cron/
   echo "Finished";
   echo '';
 
-  echo "Starting Backup Letsencrypt";
-  cp -r /root/letsencrypt/ $BACKUP_DIR/letsencrypt/
-  echo "Finished";
-  echo '';
+  if [ -d /root/letsencrypt/ ]; then
+	  echo "Starting Backup Letsencrypt";
+	  mkdir -p $BACKUP_DIR/letsencrypt/
+	  cp -r /root/letsencrypt/ $BACKUP_DIR/letsencrypt/
+	  echo "Finished";
+	  echo '';
+  fi
+  
+  sudo chown -R $USER:$USER $BACKUP_DIR  
+  sudo touch /var/log/rclone.log  
+  sudo chown -R $USER:$USER /var/log/rclone.log
 
   size=$(du -sh $BACKUP_DIR | awk '{ print $1}')
 
@@ -79,12 +108,14 @@ if [ ! -f $BACKUP_LOCK ]; then
   for REMOTE_NAME in "${REMOTE_NAME_ARR[@]}"
   do
     echo "  - $REMOTE_NAME:";
+    /usr/sbin/rclone mkdir "$REMOTE_NAME:$SERVER_NAME" #Make the path if it doesn't already exist.
     /usr/sbin/rclone copy $BACKUP_DIR "$REMOTE_NAME:$SERVER_NAME/$TIMESTAMP" >> /var/log/rclone.log 2>&1
     /usr/sbin/rclone -q --min-age 7d delete "$REMOTE_NAME:$SERVER_NAME" #Remove all backups older than 7 day
-    /usr/sbin/rclone -q --min-age 7d rmdirs "$REMOTE_NAME:$SERVER_NAME" #Remove all empty folders older than 7 day    
+    /usr/sbin/rclone -q --min-age 7d rmdirs "$REMOTE_NAME:$SERVER_NAME" #Remove all empty folders older than 7 day
+    /usr/sbin/rclone cleanup "$REMOTE_NAME:" #Cleanup Trash
   done
-  # Clean up
-  rm -rf $BACKUP_DIR
+  # Clean up local backup
+  sudo rm -rf $BACKUP_DIR
   echo "Finished";
   echo '';
 
