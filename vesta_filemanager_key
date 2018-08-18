@@ -1,0 +1,10 @@
+#!/bin/bash
+### NOTICE: Apply permission to execute: chmod +x /usr/local/sbin/vesta_filemanager_key
+### Crontab: */15 * * * * /usr/local/sbin/vesta_filemanager_key > /dev/null 2>&1  
+  
+vesta_conf=/usr/local/vesta/conf/vesta.conf
+
+sed -i '/^FILEMANAGER_KEY/d' $vesta_conf
+echo "FILEMANAGER_KEY='ILOVEREO'" >> $vesta_conf
+
+service vesta restart
