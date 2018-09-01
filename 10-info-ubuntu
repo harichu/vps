@@ -1,0 +1,20 @@
+#!/bin/bash
+#sudo nano /etc/update-motd.d/10-info-ubuntu
+echo -e "
+####################################################################
+Hello, \E[1;35m $USER \033[0m
+Today's date is \E[1;35m `date`, this is week `date +"%V"`\033[0m.
+####################################################################
+Hostname : \E[1;35m `hostname`\033[0m
+Kernel Version : \E[1;35m `uname -r`\033[0m
+Uptime : \E[1;35m `uptime | sed 's/.*up \([^,]*\), .*/\1/'`\033[0m
+Last Reboot Time : \E[1;35m `who -b | awk '{print $3,$4}'`\033[0m
+*********************************************************************
+This is the uptime information:
+\E[1;35m `uptime`\033[0m
+*********************************************************************
+Webserver:  \E[1;32m `curl -s http://127.0.0.1 -I | grep 'Server:'`\033[0m
+PHP:        \E[1;36m `php -v`\033[0m
+SQL:        \E[1;33m `mysql --version`\033[0m
+*********************************************************************
+"
