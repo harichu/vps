@@ -1,5 +1,6 @@
 #!/bin/bash
 #sudo nano /etc/update-motd.d/10-info-ubuntu
+#sudo chmod +x /etc/update-motd.d/10-info-ubuntu
 echo -e "
 ####################################################################
 Hello, \E[1;35m $USER \033[0m
