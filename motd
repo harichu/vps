@@ -1,4 +1,7 @@
 #!/bin/bash
+#nano /usr/local/bin/dynmotd
+#chmod +x /usr/local/bin/dynmotd
+#add "/usr/local/bin/dynmotd" at bottom: /etc/profile
 echo -e "
 ####################################################################
 
