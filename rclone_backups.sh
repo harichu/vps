@@ -42,7 +42,7 @@ if [ ! -f $BACKUP_LOCK ]; then
   for db in $databases; do
     $MYSQLDUMP --force --opt --user=$MYSQL_USER -p$MYSQL_PASSWORD --databases $db | gzip > "$BACKUP_DIR/mysql/$db.sql.gz"
   done
-  echo "Finished";
+  echo " ✈ Finished";
   echo '';
 
   echo "Starting Backup Website";
@@ -64,14 +64,14 @@ if [ ! -f $BACKUP_LOCK ]; then
       fi
     fi
   done
-  echo "Finished";
+  echo " ✈ Finished";
   echo '';
 
   if [ -d /etc/nginx/ ]; then
 	  echo "Starting Backup Nginx Configuration";
 	  mkdir -p $BACKUP_DIR/nginx/
 	  cp -r /etc/nginx/ $BACKUP_DIR/nginx/
-	  echo "Finished";
+	  echo " ✈ Finished";
 	  echo '';
   fi
 
@@ -83,20 +83,20 @@ if [ ! -f $BACKUP_LOCK ]; then
   if [ -d /usr/local/apache/ ]; then
     cp -r /usr/local/apache/ $BACKUP_DIR/apache/
   fi
-  echo "Finished";
+  echo " ✈ Finished";
   echo '';
 
   echo "Starting Backup Cronjob";
   mkdir -p $BACKUP_DIR/cron/
   sudo cp -r /var/spool/cron/ $BACKUP_DIR/cron/
-  echo "Finished";
+  echo " ✈ Finished";
   echo '';
 
   if [ -d /root/letsencrypt/ ]; then
 	  echo "Starting Backup Letsencrypt";
 	  mkdir -p $BACKUP_DIR/letsencrypt/
 	  cp -r /root/letsencrypt/ $BACKUP_DIR/letsencrypt/
-	  echo "Finished";
+	  echo " ✈ Finished";
 	  echo '';
   fi
   
@@ -119,7 +119,7 @@ if [ ! -f $BACKUP_LOCK ]; then
   done
   # Clean up local backup
   sudo rm -rf $BACKUP_DIR
-  echo "Finished";
+  echo " ✈ Finished";
   echo '';
 
   duration=$SECONDS
