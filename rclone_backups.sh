@@ -1,10 +1,10 @@
 #!/bin/bash
-### NOTICE: Apply permission to execute: chmod +x /usr/local/sbin/rclone_backup
+### NOTICE: Apply permission to execute: chmod +x /usr/local/bin/rclone_backup
 # cronjob
 # EDITOR=nano crontab -e
-# 0 3 * * * sh /usr/local/sbin/rclone_backup > /dev/null 2>&1
+# 0 3 * * * sh /usr/local/bin/rclone_backup > /dev/null 2>&1
 
-SERVER_NAME=LINODE.DATA
+SERVER_NAME=SERVER.DATA
 REMOTE_NAMES=gdrive #support multi remote, ex: gdrive,yandex
 
 TIMESTAMP=$(date +"%F")
@@ -119,11 +119,11 @@ if [ ! -f $BACKUP_LOCK ]; then
   for REMOTE_NAME in "${REMOTE_NAME_ARR[@]}"
   do
     echo "  - $REMOTE_NAME:";
-    /usr/sbin/rclone mkdir "$REMOTE_NAME:$SERVER_NAME" #Make the path if it doesn't already exist.
-    /usr/sbin/rclone copy $BACKUP_DIR "$REMOTE_NAME:$SERVER_NAME/$TIMESTAMP" >> /var/log/rclone.log 2>&1
-    /usr/sbin/rclone -q --min-age 7d delete "$REMOTE_NAME:$SERVER_NAME" #Remove all backups older than 7 day
-    /usr/sbin/rclone -q --min-age 7d rmdirs "$REMOTE_NAME:$SERVER_NAME" #Remove all empty folders older than 7 day
-    /usr/sbin/rclone cleanup "$REMOTE_NAME:" #Cleanup Trash
+    rclone mkdir "$REMOTE_NAME:$SERVER_NAME" #Make the path if it doesn't already exist.
+    rclone copy $BACKUP_DIR "$REMOTE_NAME:$SERVER_NAME/$TIMESTAMP" >> /var/log/rclone.log 2>&1
+    rclone -q --min-age 7d delete "$REMOTE_NAME:$SERVER_NAME" #Remove all backups older than 7 day
+    rclone -q --min-age 7d rmdirs "$REMOTE_NAME:$SERVER_NAME" #Remove all empty folders older than 7 day
+    rclone cleanup "$REMOTE_NAME:" #Cleanup Trash
   done
   # Clean up local backup
   sudo rm -rf $BACKUP_DIR
