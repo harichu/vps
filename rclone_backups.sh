@@ -60,7 +60,7 @@ if [ ! -f $BACKUP_LOCK ]; then
       if [ "$available_folder" == "1" ]; then
         echo "- "$domain;
         #zip -r $BACKUP_DIR/$domain.zip $WWW_DIR/$domain -q -x "$WWW_DIR/$domain/**\*/wp-content/cache/**\*" #Exclude cache
-        tar -zcvf $BACKUP_DIR/$domain.tar.gz $WWW_DIR/$domain --exclude="$WWW_DIR/$domain/**\*/wp-content/cache/**\*" #Exclude cache
+        tar -zcvf $BACKUP_DIR/$domain.tar.gz $WWW_DIR/$domain --exclude=$WWW_DIR/$domain/*/wp-content/cache/* #Exclude cache
       fi
     fi
   done
