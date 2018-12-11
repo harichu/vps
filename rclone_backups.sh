@@ -92,6 +92,14 @@ if [ ! -f $BACKUP_LOCK ]; then
   echo " ✈ Finished";
   echo '';
 
+  if [ -d /root/.acme.sh/ ]; then
+	  echo "Starting Backup acme.sh";
+	  mkdir -p $BACKUP_DIR/acme.sh/
+	  cp -r /root/.acme.sh/ $BACKUP_DIR/acme.sh/
+	  echo " ✈ Finished";
+	  echo '';
+  fi
+
   if [ -d /root/letsencrypt/ ]; then
 	  echo "Starting Backup Letsencrypt";
 	  mkdir -p $BACKUP_DIR/letsencrypt/
