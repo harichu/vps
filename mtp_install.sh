@@ -2,7 +2,6 @@
 # Automatic interactive installer for mtproto proxy https://github.com/seriyps/mtproto_proxy
 # bash <(wget -qO- https://raw.githubusercontent.com/harichu/vps/refs/heads/master/mtp_install.sh)
 # Supported OS:
-# - Ubuntu 18.xx
 # - Ubuntu 19.xx
 # - Ubuntu 20.xx
 # - Ubuntu 21.xx
@@ -124,7 +123,7 @@ do_configure_os() {
             sudo apt update
             sudo apt install erlang-nox erlang-dev make sed diffutils tar
             ;;
-        debian-9|debian-8|ubuntu-18.*)
+        debian-9|debian-8)
             info "Installing extra repositories"
             curl -L https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb -o erlang-solutions_1.0_all.deb
             sudo dpkg -i erlang-solutions_1.0_all.deb
