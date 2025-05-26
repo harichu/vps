@@ -174,14 +174,14 @@ do_build_config() {
     # command-line or env vars
 
     if [ -z "${PORT}" ]; then
-        PORT=443
-        read -p "Use default proxy port 443? [y/n] " yn
+        PORT=11443
+        read -p "Use default proxy port 11443? [y/n] " yn
         case $yn in
             [Nn]*)
                 read -p "Enter port number: 1-32000: " PORT
                 ;;
             *)
-                info "Using default port 443"
+                info "Using default port 11443"
                 ;;
         esac
     fi
@@ -385,7 +385,8 @@ do_print_links() {
     IP=`curl -s -4 -m 10 http://ipv4.seriyps.com || curl -s -4 -m 10 https://digitalresistance.dog/myIp`
     info "Detected external IP is ${IP}"
 
-    URL_PREFIX="https://t.me/proxy?server=${IP}&port=${PORT}&secret="
+    #URL_PREFIX="https://t.me/proxy?server=${IP}&port=${PORT}&secret="
+    URL_PREFIX="tg://proxy?server=${IP}&port=${PORT}&secret="
 
     ESCAPED_SECRET=$(echo -n $SECRET | sed 's/../\\x&/g') # bytes
     ESCAPED_TLS_SECRET="\xee${ESCAPED_SECRET}"${TLS_DOMAIN}
